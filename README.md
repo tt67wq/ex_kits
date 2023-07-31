@@ -16,4 +16,4 @@ end
 
 ## Documentation
 
-[https://hexdocs.pm/ex_kits](https://hexdocs.pm/ex_kits).
+[HEXDOC](https://hexdocs.pm/ex_kits/).
