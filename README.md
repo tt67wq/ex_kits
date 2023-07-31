@@ -1,11 +1,10 @@
 # ExKits
 
-**TODO: Add description**
+**Some useful kits for elixir development**
 
 ## Installation
 
-If [available in Hex](https://hex.pm/docs/publish), the package can be installed
-by adding `ex_kits` to your list of dependencies in `mix.exs`:
+adding `ex_kits` to your list of dependencies in `mix.exs`:
 
 ```elixir
 def deps do
@@ -15,7 +14,6 @@ def deps do
 end
 ```
 
-Documentation can be generated with [ExDoc](https://github.com/elixir-lang/ex_doc)
-and published on [HexDocs](https://hexdocs.pm). Once published, the docs can
-be found at <https://hexdocs.pm/ex_kits>.
+## Documentation
 
+[https://hexdocs.pm/ex_kits](https://hexdocs.pm/ex_kits).
