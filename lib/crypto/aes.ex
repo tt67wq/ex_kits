@@ -1,5 +1,23 @@
 defmodule ExKits.Crypto.AES128CBC do
-  @moduledoc false
+  @moduledoc """
+  This module provides functions for encrypting and decrypting data using the AES-128-CBC algorithm.
+
+  ## Examples
+
+      secret_key = <<1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16>>
+      iv = <<17, 18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30, 31, 32>>
+
+      plaintext = "hello world"
+      ciphertext = ExKits.Crypto.AES128CBC.encrypt(plaintext, secret_key, iv)
+      decrypted_text = ExKits.Crypto.AES128CBC.decrypt(ciphertext, secret_key, iv)
+
+      assert decrypted_text == plaintext
+
+  ## Security Warning
+
+  This module provides a basic implementation of the AES-128-CBC algorithm
+  and should not be used in production environments without proper security review and testing.
+  """
   @block_size 16
 
   @type key :: <<_::128>>
