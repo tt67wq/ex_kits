@@ -1,15 +1,25 @@
 defmodule ExKits.Macros.Constants do
   @moduledoc """
-  defmodule MyApp.Constant do
-  import Constants
+  This module provides a macro for defining compile-time constants in Elixir code.
 
-    const :facebook_url, "http://facebook.com/rohanpujaris"
+  ## Examples
+
+  ```Elixir
+
+  # Define a constant:
+  defmodule MyConst do
+    import ExKits.Macros.Constants
+
+    const :pi, 3.14159
   end
 
-  defmodule MyApp do
-    require MyApp.Constant
-    @facebook_url MyApp.Constant.facebook_url  # You can use this line anywhere to get the facebook url.
-  end
+  # Use a constant:
+
+  require MyConst
+  @pi MyConst.pi()
+
+  IO.puts(@pi)
+  ```
   """
   defmacro const(const_name, const_value) do
     quote do
