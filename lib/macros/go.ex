@@ -1,5 +1,14 @@
 defmodule ExKits.Macros.Go do
-  @moduledoc false
+  @moduledoc """
+  This module provides a macro for starting a new task under a given supervisor.
+
+  ## Examples
+
+  Start a new task under a supervisor:
+
+      supervisor = MySupervisor.Supervisor
+      ExKits.Macros.go(supervisor, IO.puts("Hello, world!"))
+  """
 
   defmacro go(supervisor, task) do
     quote do
