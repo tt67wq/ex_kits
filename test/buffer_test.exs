@@ -32,4 +32,12 @@ defmodule BufferTest do
       assert Queue.take(:my_queue) == [1, 2, 3]
     end
   end
+
+  describe "size/2" do
+    test "returns the size of the buffer queue" do
+      {:ok, _pid} = Queue.start_link(:my_queue, 10)
+      assert Queue.put(:my_queue, [1, 2, 3]) == :ok
+      assert Queue.size(:my_queue) == 3
+    end
+  end
 end

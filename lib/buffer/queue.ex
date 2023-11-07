@@ -74,6 +74,23 @@ defmodule Buffer.Queue do
     Agent.get_and_update(name, __MODULE__, :handle_take, [], timeout)
   end
 
+  @doc """
+  Returns the number of items in the buffer queue.
+
+  ## Examples
+
+      iex> {:ok, _pid} = Buffer.Queue.start_link(:my_queue, 10)
+      iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
+      :ok
+      iex> Buffer.Queue.size(:my_queue)
+      3
+
+  """
+  @spec size(atom(), non_neg_integer()) :: non_neg_integer()
+  def size(name, timeout \\ 5000) do
+    Agent.get(name, __MODULE__, :handle_size, [], timeout)
+  end
+
   @doc false
   @spec init(atom(), non_neg_integer(), Keyword.t()) :: t()
   def init(name, size, _opts) do
@@ -126,4 +143,7 @@ defmodule Buffer.Queue do
 
     {vals, %__MODULE__{state | buff_size: 0}}
   end
+
+  @doc false
+  def handle_size(%__MODULE__{buff_size: buff_size}), do: buff_size
 end
