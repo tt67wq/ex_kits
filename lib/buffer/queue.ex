@@ -94,7 +94,7 @@ defmodule Buffer.Queue do
   @doc false
   @spec init(atom(), non_neg_integer(), Keyword.t()) :: t()
   def init(name, size, _opts) do
-    :ets.new(:"#{name}_buff", [:named_table, :set])
+    :ets.new(:"#{name}_buff", [:named_table, :ordered_set])
 
     %__MODULE__{
       buff: :"#{name}_buff",
@@ -135,11 +135,8 @@ defmodule Buffer.Queue do
         }
       ) do
     vals =
-      0..(buff_size - 1)
-      |> Enum.map(fn idx ->
-        [{_, x}] = :ets.take(buff, idx)
-        x
-      end)
+      buff
+      |> :ets.select([{{:"$1", :"$2"}, [{:<, :"$1", buff_size}], [:"$2"]}])
 
     {vals, %__MODULE__{state | buff_size: 0}}
   end

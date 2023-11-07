@@ -30,6 +30,7 @@ defmodule BufferTest do
       {:ok, _pid} = Queue.start_link(:my_queue, 10)
       assert Queue.put(:my_queue, [1, 2, 3]) == :ok
       assert Queue.take(:my_queue) == [1, 2, 3]
+      assert Queue.take(:my_queue) == []
     end
   end
 
