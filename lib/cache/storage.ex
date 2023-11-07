@@ -1,8 +1,14 @@
 defmodule ExKits.Cache.Storage do
   @moduledoc """
-  storage behaviour, as backend of cache framework
+  A cache storage module that provides a simple interface for storing and retrieving key-value pairs.
 
-  you can use default implementation ExKits.Storage.ETS, or implement your own storage
+  ## Examples
+
+      iex> storage = ExKits.Cache.Storage.new([])
+      iex> ExKits.Cache.Storage.put(storage, :key, "value", [])
+      :ok
+      iex> ExKits.Cache.Storage.get(storage, :key)
+      "value"
   """
 
   # types
@@ -20,12 +26,39 @@ defmodule ExKits.Cache.Storage do
   @callback put(t, k, v, put_opts()) :: any()
   @callback del(t, k) :: any()
 
+  @doc """
+  get the value of a key from the cache storage
+
+  ## Examples
+
+      iex> storage = ExKits.Storage.ETS.new([])
+      iex> ExKits.Cache.Storage.get(storage, :key)
+      nil
+  """
   @spec get(t, k) :: v
   def get(storage, k), do: delegate(storage, :get, [k])
 
+  @doc """
+  put a key-value pair into the cache storage
+
+  ## Examples
+
+      iex> storage = ExKits.Storage.ETS.new([])
+      iex> ExKits.Cache.Storage.put(storage, :key, "value", [])
+      :ok
+  """
   @spec put(t, k, v, put_opts()) :: any()
   def put(storage, k, v, opts), do: delegate(storage, :put, [k, v, opts])
 
+  @doc """
+  delete a key-value pair from the cache storage
+
+  ## Examples
+
+      iex> storage = ExKits.Storage.ETS.new([])
+      iex> ExKits.Cache.Storage.del(storage, :key)
+      :ok
+  """
   @spec del(t, k) :: any()
   def del(storage, k), do: delegate(storage, :del, [k])
 

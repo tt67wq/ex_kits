@@ -6,7 +6,7 @@ defmodule ExKits.Cache do
 
   Retrieve a value from the cache:
 
-      ```elixir
+      ```Elixir
       storage = SomeImplement.new()
       ExKits.Cache.fetch(storage, :key, [{:ttl, 3000}], fn _key ->
         {:commit, "value"}
@@ -16,7 +16,7 @@ defmodule ExKits.Cache do
 
   Evict a value from the cache:
 
-      ```elixir
+      ```Elixir
       storage = SomeImplement.new()
       ExKits.Cache.evict(storage, :key)
       ```
