@@ -19,12 +19,16 @@ defmodule Buffer.Queue do
 
   defstruct buff: nil,
             buff_size: 0,
-            capacity: 0
+            capacity: 0,
+            touch: 0,
+            gc_freq: 0
 
   @type t :: %__MODULE__{
           buff: atom(),
           buff_size: non_neg_integer(),
-          capacity: non_neg_integer()
+          capacity: non_neg_integer(),
+          touch: non_neg_integer(),
+          gc_freq: non_neg_integer()
         }
 
   @spec start_link(atom(), non_neg_integer(), Keyword.t()) :: Agent.on_start()
@@ -93,13 +97,17 @@ defmodule Buffer.Queue do
 
   @doc false
   @spec init(atom(), non_neg_integer(), Keyword.t()) :: t()
-  def init(name, size, _opts) do
+  def init(name, size, opts) do
     :ets.new(:"#{name}_buff", [:named_table, :ordered_set])
+
+    {gc_freq, _} = Keyword.pop(opts, :gc_freq, 1000)
 
     %__MODULE__{
       buff: :"#{name}_buff",
       buff_size: 0,
-      capacity: size
+      capacity: size,
+      touch: 0,
+      gc_freq: gc_freq
     }
   end
 
@@ -108,7 +116,9 @@ defmodule Buffer.Queue do
         state = %__MODULE__{
           buff: buff,
           buff_size: buff_size,
-          capacity: capacity
+          capacity: capacity,
+          touch: touch,
+          gc_freq: gc_freq
         },
         items
       ) do
@@ -121,7 +131,16 @@ defmodule Buffer.Queue do
         :ets.insert(buff, {idx, item})
       end)
 
-      {:ok, %__MODULE__{state | buff_size: buff_size + Enum.count(items)}}
+      if touch >= gc_freq do
+        # gc
+        :ets.select_delete(buff, [
+          {{:"$1", :"$2"}, [{:>=, :"$1", buff_size + Enum.count(items)}], [:"$2"]}
+        ])
+
+        {:ok, %__MODULE__{state | buff_size: buff_size + Enum.count(items), touch: 0}}
+      else
+        {:ok, %__MODULE__{state | buff_size: buff_size + Enum.count(items), touch: touch + 1}}
+      end
     end
   end
 
@@ -134,11 +153,8 @@ defmodule Buffer.Queue do
           buff_size: buff_size
         }
       ) do
-    vals =
-      buff
-      |> :ets.select([{{:"$1", :"$2"}, [{:<, :"$1", buff_size}], [:"$2"]}])
-
-    {vals, %__MODULE__{state | buff_size: 0}}
+    {:ets.select(buff, [{{:"$1", :"$2"}, [{:<, :"$1", buff_size}], [:"$2"]}]),
+     %__MODULE__{state | buff_size: 0}}
   end
 
   @doc false
