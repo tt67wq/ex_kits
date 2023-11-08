@@ -33,11 +33,31 @@ defmodule Buffer.Queue do
           gc_freq: non_neg_integer()
         }
 
+  @doc """
+  Starts a new buffer process.
+
+  ## Options
+
+  * `:name` - The name of the buffer process. Must be an atom
+  * `:size` - The maximum number of items the buffer can hold
+
+
+  ## Examples
+
+      iex> {:ok, pid} = Buffer.Queue.start_link(name: :my_queue, size: 10)
+      iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
+
+  """
   @spec start_link(keyword()) :: Agent.on_start()
   def start_link(opts) do
     {name, opts} = Keyword.pop!(opts, :name)
     {size, opts} = Keyword.pop!(opts, :size)
     Agent.start_link(__MODULE__, :init, [name, size, opts], name: name)
+  end
+
+  @spec stop(atom()) :: :ok
+  def stop(name) do
+    Agent.stop(name)
   end
 
   @doc """
