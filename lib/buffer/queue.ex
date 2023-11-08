@@ -9,13 +9,15 @@ defmodule Buffer.Queue do
 
   ## Examples
 
-      iex> {:ok, pid} = Buffer.Queue.start_link(:my_queue, 10)
+      iex> {:ok, pid} = Buffer.Queue.start_link(name: :my_queue, size: 10)
       iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
       :ok
       iex> Buffer.Queue.take(:my_queue)
       [1, 2, 3]
 
   """
+
+  use Agent
 
   defstruct buff: nil,
             buff_size: 0,
@@ -31,8 +33,10 @@ defmodule Buffer.Queue do
           gc_freq: non_neg_integer()
         }
 
-  @spec start_link(atom(), non_neg_integer(), Keyword.t()) :: Agent.on_start()
-  def start_link(name, size, opts \\ []) do
+  @spec start_link(keyword()) :: Agent.on_start()
+  def start_link(opts) do
+    {name, opts} = Keyword.pop!(opts, :name)
+    {size, opts} = Keyword.pop!(opts, :size)
     Agent.start_link(__MODULE__, :init, [name, size, opts], name: name)
   end
 
