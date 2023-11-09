@@ -3,7 +3,7 @@ defmodule ExKits.MixProject do
   use Mix.Project
 
   @name "lib_oss"
-  @version "0.2.1"
+  @version "0.2.2"
   @repo_url "https://github.com/tt67wq/ex_kits"
   @description "Some useful kits for elixir development"
 
