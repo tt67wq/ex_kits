@@ -154,22 +154,13 @@ defmodule ExKits.Storage.ETS do
     now = :os.system_time(:millisecond)
 
     deleted =
-      :ets.foldl(
-        fn {_key, _val, timeout} = item, deleted ->
-          case timeout do
-            :infinity ->
-              deleted
-
-            timeout when is_integer(timeout) and timeout < now ->
-              :ets.delete(name, item)
-              deleted + 1
-
-            _ ->
-              deleted
-          end
-        end,
-        0,
-        name
+      :ets.select_delete(
+        name,
+        [
+          {{:"$1", :"$2", :infinity}, [], [false]},
+          {{:"$1", :"$2", :"$3"}, [{:<, :"$3", now}], [true]},
+          {:_, [], [false]}
+        ]
       )
 
     Logger.debug("cleanup #{deleted} expired items from #{name}")
