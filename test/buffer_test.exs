@@ -2,6 +2,8 @@ defmodule BufferTest do
   @moduledoc false
   use ExUnit.Case
 
+  alias ExKits.Utils.Buffer
+
   setup do
     start_supervised!({Buffer, name: :my_queue, size: 10})
     [name: :my_queue]

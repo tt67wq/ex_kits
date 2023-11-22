@@ -1,4 +1,4 @@
-defmodule Buffer do
+defmodule ExKits.Utils.Buffer do
   @moduledoc """
   A simple buffer queue implementation using ETS tables.
 
@@ -9,10 +9,10 @@ defmodule Buffer do
 
   ## Examples
 
-      iex> {:ok, pid} = Buffer.start_link(name: :my_queue, size: 10)
-      iex> Buffer.put(:my_queue, [1, 2, 3])
+      iex> {:ok, pid} = ExKits.Utils.Buffer.start_link(name: :my_queue, size: 10)
+      iex> ExKits.Utils.Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.take(:my_queue)
+      iex> ExKits.Utils.Buffer.take(:my_queue)
       [1, 2, 3]
 
   """
@@ -44,8 +44,8 @@ defmodule Buffer do
 
   ## Examples
 
-      iex> {:ok, pid} = Buffer.start_link(name: :my_queue, size: 10)
-      iex> Buffer.put(:my_queue, [1, 2, 3])
+      iex> {:ok, pid} = ExKits.Utils.Buffer.start_link(name: :my_queue, size: 10)
+      iex> ExKits.Utils.Buffer.put(:my_queue, [1, 2, 3])
 
   """
   @spec start_link(keyword()) :: Agent.on_start()
@@ -67,12 +67,12 @@ defmodule Buffer do
 
   ## Examples
 
-      iex> {:ok, _pid} = Buffer.start_link(:my_queue, 10)
-      iex> Buffer.put(:my_queue, [1, 2, 3])
+      iex> {:ok, _pid} = ExKits.Utils.Buffer.start_link(:my_queue, 10)
+      iex> ExKits.Utils.Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.put(:my_queue, [4, 5, 6], 1000)
+      iex> ExKits.Utils.Buffer.put(:my_queue, [4, 5, 6], 1000)
       :ok
-      iex> Buffer.put(:my_queue, [7, 8, 9, 10, 11])
+      iex> ExKits.Utils.Buffer.put(:my_queue, [7, 8, 9, 10, 11])
       {:error, :full}
 
   """
@@ -88,12 +88,12 @@ defmodule Buffer do
 
   ## Examples
 
-      iex> {:ok, _pid} = Buffer.start_link(:my_queue, 10)
-      iex> Buffer.put(:my_queue, [1, 2, 3])
+      iex> {:ok, _pid} = ExKits.Utils.Buffer.start_link(:my_queue, 10)
+      iex> ExKits.Utils.Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.take(:my_queue)
+      iex> ExKits.Utils.Buffer.take(:my_queue)
       [1, 2, 3]
-      iex> Buffer.take(:my_queue)
+      iex> ExKits.Utils.Buffer.take(:my_queue)
       []
 
   """
@@ -107,10 +107,10 @@ defmodule Buffer do
 
   ## Examples
 
-      iex> {:ok, _pid} = Buffer.start_link(:my_queue, 10)
-      iex> Buffer.put(:my_queue, [1, 2, 3])
+      iex> {:ok, _pid} = ExKits.Utils.Buffer.start_link(:my_queue, 10)
+      iex> ExKits.Utils.Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.size(:my_queue)
+      iex> ExKits.Utils.Buffer.size(:my_queue)
       3
 
   """
