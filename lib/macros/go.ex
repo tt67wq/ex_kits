@@ -6,8 +6,7 @@ defmodule ExKits.Macros.Go do
 
   Start a new task under a supervisor:
 
-      supervisor = MySupervisor.Supervisor
-      ExKits.Macros.go(supervisor, IO.puts("Hello, world!"))
+      ExKits.Macros.go(MySupervisor, IO.puts("Hello, world!"))
   """
 
   defmacro go(supervisor, task) do
