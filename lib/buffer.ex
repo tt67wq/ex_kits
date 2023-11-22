@@ -1,4 +1,4 @@
-defmodule Buffer.Queue do
+defmodule Buffer do
   @moduledoc """
   A simple buffer queue implementation using ETS tables.
 
@@ -9,10 +9,10 @@ defmodule Buffer.Queue do
 
   ## Examples
 
-      iex> {:ok, pid} = Buffer.Queue.start_link(name: :my_queue, size: 10)
-      iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
+      iex> {:ok, pid} = Buffer.start_link(name: :my_queue, size: 10)
+      iex> Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.Queue.take(:my_queue)
+      iex> Buffer.take(:my_queue)
       [1, 2, 3]
 
   """
@@ -44,8 +44,8 @@ defmodule Buffer.Queue do
 
   ## Examples
 
-      iex> {:ok, pid} = Buffer.Queue.start_link(name: :my_queue, size: 10)
-      iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
+      iex> {:ok, pid} = Buffer.start_link(name: :my_queue, size: 10)
+      iex> Buffer.put(:my_queue, [1, 2, 3])
 
   """
   @spec start_link(keyword()) :: Agent.on_start()
@@ -67,12 +67,12 @@ defmodule Buffer.Queue do
 
   ## Examples
 
-      iex> {:ok, _pid} = Buffer.Queue.start_link(:my_queue, 10)
-      iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
+      iex> {:ok, _pid} = Buffer.start_link(:my_queue, 10)
+      iex> Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.Queue.put(:my_queue, [4, 5, 6], 1000)
+      iex> Buffer.put(:my_queue, [4, 5, 6], 1000)
       :ok
-      iex> Buffer.Queue.put(:my_queue, [7, 8, 9, 10, 11])
+      iex> Buffer.put(:my_queue, [7, 8, 9, 10, 11])
       {:error, :full}
 
   """
@@ -88,12 +88,12 @@ defmodule Buffer.Queue do
 
   ## Examples
 
-      iex> {:ok, _pid} = Buffer.Queue.start_link(:my_queue, 10)
-      iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
+      iex> {:ok, _pid} = Buffer.start_link(:my_queue, 10)
+      iex> Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.Queue.take(:my_queue)
+      iex> Buffer.take(:my_queue)
       [1, 2, 3]
-      iex> Buffer.Queue.take(:my_queue)
+      iex> Buffer.take(:my_queue)
       []
 
   """
@@ -107,10 +107,10 @@ defmodule Buffer.Queue do
 
   ## Examples
 
-      iex> {:ok, _pid} = Buffer.Queue.start_link(:my_queue, 10)
-      iex> Buffer.Queue.put(:my_queue, [1, 2, 3])
+      iex> {:ok, _pid} = Buffer.start_link(:my_queue, 10)
+      iex> Buffer.put(:my_queue, [1, 2, 3])
       :ok
-      iex> Buffer.Queue.size(:my_queue)
+      iex> Buffer.size(:my_queue)
       3
 
   """
