@@ -8,8 +8,6 @@ defmodule ExKits.Macros.Types do
 
       @type ok_t :: {:ok, term()}
       @type ok_t(item) :: {:ok, item}
-
-      @type list_t(item) :: [item]
     end
   end
 end
