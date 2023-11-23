@@ -63,8 +63,7 @@ defmodule ExKits.Cache.LRU do
   `value` is replaced by the new one. This updates the order of LRU cache.
   """
   @spec put(atom(), any(), any(), non_neg_integer()) :: :ok
-  def put(name, key, value, timeout \\ 5000),
-    do: Agent.get(name, __MODULE__, :handle_put, [key, value], timeout)
+  def put(name, key, value, timeout \\ 5000), do: Agent.get(name, __MODULE__, :handle_put, [key, value], timeout)
 
   @doc """
   Updates a `value` in `cache`. If `key` is not present in `cache` then nothing is done.
@@ -104,8 +103,7 @@ defmodule ExKits.Cache.LRU do
   Removes the entry stored under the given `key` from cache.
   """
   @spec delete(atom(), any(), non_neg_integer()) :: :ok
-  def delete(name, key, timeout \\ 5000),
-    do: Agent.get(name, __MODULE__, :handle_delete, [key], timeout)
+  def delete(name, key, timeout \\ 5000), do: Agent.get(name, __MODULE__, :handle_delete, [key], timeout)
 
   @doc false
   @spec init(atom(), non_neg_integer(), Keyword.t()) :: t()
@@ -118,7 +116,7 @@ defmodule ExKits.Cache.LRU do
   end
 
   @doc false
-  def handle_put(state = %__MODULE__{table: table}, key, value) do
+  def handle_put(%__MODULE__{table: table} = state, key, value) do
     delete_ttl(state, key)
     uniq = insert_ttl(state, key)
     :ets.insert(table, {key, uniq, value})
@@ -127,7 +125,7 @@ defmodule ExKits.Cache.LRU do
   end
 
   @doc false
-  def handle_touch(state = %__MODULE__{table: table}, key) do
+  def handle_touch(%__MODULE__{table: table} = state, key) do
     delete_ttl(state, key)
     uniq = insert_ttl(state, key)
     :ets.update_element(table, key, [{2, uniq}])
@@ -135,7 +133,7 @@ defmodule ExKits.Cache.LRU do
   end
 
   @doc false
-  def handle_delete(state = %{table: table}, key) do
+  def handle_delete(%{table: table} = state, key) do
     delete_ttl(state, key)
     :ets.delete(table, key)
     :ok
@@ -157,13 +155,7 @@ defmodule ExKits.Cache.LRU do
     uniq
   end
 
-  defp clean_oversize(
-         state = %__MODULE__{
-           ttl_table: ttl_table,
-           table: table,
-           size: size
-         }
-       ) do
+  defp clean_oversize(%__MODULE__{ttl_table: ttl_table, table: table, size: size} = state) do
     if :ets.info(table, :size) > size do
       oldest_tstamp = :ets.first(ttl_table)
       [{_, old_key}] = :ets.lookup(ttl_table, oldest_tstamp)

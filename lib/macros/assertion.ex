@@ -19,30 +19,30 @@ defmodule ExKits.Macros.Assertion do
   """
   defmacro do_assert(assert_fn, error_msg) do
     quote do
-      unquote(assert_fn).()
-      |> case do
-        true -> :ok
-        false -> {:error, unquote(error_msg)}
+      if unquote(assert_fn).() do
+        :ok
+      else
+        {:error, unquote(error_msg)}
       end
     end
   end
 
   defmacro assert_exists(obj, error_msg) do
     quote do
-      (fn -> not is_nil(unquote(obj)) end).()
-      |> case do
-        true -> :ok
-        false -> {:error, unquote(error_msg)}
+      if (fn -> not is_nil(unquote(obj)) end).() do
+        :ok
+      else
+        {:error, unquote(error_msg)}
       end
     end
   end
 
   defmacro assert_non_exists(obj, error_msg) do
     quote do
-      (fn -> is_nil(unquote(obj)) end).()
-      |> case do
-        true -> :ok
-        false -> {:error, unquote(error_msg)}
+      if (fn -> is_nil(unquote(obj)) end).() do
+        :ok
+      else
+        {:error, unquote(error_msg)}
       end
     end
   end

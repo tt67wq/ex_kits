@@ -62,8 +62,7 @@ defmodule ExKits.Cache.Storage do
   @spec del(t, k) :: any()
   def del(storage, k), do: delegate(storage, :del, [k])
 
-  defp delegate(%module{} = storage, func, args),
-    do: apply(module, func, [storage | args])
+  defp delegate(%module{} = storage, func, args), do: apply(module, func, [storage | args])
 end
 
 defmodule ExKits.Storage.ETS do
@@ -71,13 +70,13 @@ defmodule ExKits.Storage.ETS do
   ExKits.Cache.Storage implementation by ETS
   """
 
-  alias ExKits.Cache.Storage
+  @behaviour ExKits.Cache.Storage
 
   use GenServer
 
-  require Logger
+  alias ExKits.Cache.Storage
 
-  @behaviour Storage
+  require Logger
 
   @type t :: %__MODULE__{name: atom(), interval: pos_integer()}
 
@@ -121,11 +120,9 @@ defmodule ExKits.Storage.ETS do
   end
 
   @impl Storage
-  def put(storage, key, value, ttl: :infinity),
-    do: :ets.insert(storage.name, {key, value, :infinity})
+  def put(storage, key, value, ttl: :infinity), do: :ets.insert(storage.name, {key, value, :infinity})
 
-  def put(storage, key, value, ttl: ttl),
-    do: :ets.insert(storage.name, {key, value, :os.system_time(:millisecond) + ttl})
+  def put(storage, key, value, ttl: ttl), do: :ets.insert(storage.name, {key, value, :os.system_time(:millisecond) + ttl})
 
   def put(storage, key, value, []), do: put(storage, key, value, ttl: :infinity)
 

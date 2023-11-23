@@ -21,7 +21,7 @@ defmodule ExKits.Crypto.Fnv1a do
   def hash(term) do
     term
     |> :erlang.term_to_binary()
-    |> hash
+    |> hash()
   end
 
   defp _hash(hash, byte_offset, bin) when byte_size(bin) == byte_offset do

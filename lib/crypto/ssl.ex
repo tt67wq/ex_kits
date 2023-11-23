@@ -18,14 +18,16 @@ defmodule ExKits.Crypto.SSL do
   def load_ssl([]), do: []
 
   def load_ssl(ssl) do
-    ssl = Enum.into(ssl, %{})
+    ssl = Map.new(ssl)
 
-    [
-      cacerts: ssl.ca_cert |> decode_public() |> List.wrap(),
-      cert: ssl.cert |> decode_public(),
-      key: ssl.key |> decode_private()
-    ]
-    |> Enum.reject(fn {_k, v} -> v == nil end)
+    Enum.reject(
+      [
+        cacerts: ssl.ca_cert |> decode_public() |> List.wrap(),
+        cert: decode_public(ssl.cert),
+        key: decode_private(ssl.key)
+      ],
+      fn {_k, v} -> v == nil end
+    )
   end
 
   @doc """

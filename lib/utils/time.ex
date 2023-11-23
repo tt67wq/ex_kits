@@ -28,23 +28,22 @@ defmodule ExKits.Utils.Time do
   end
 
   @spec naive_now(atom()) :: NaiveDateTime.t()
-  def naive_now(typ \\ :second),
-    do: NaiveDateTime.utc_now() |> NaiveDateTime.truncate(typ)
+  def naive_now(typ \\ :second), do: NaiveDateTime.truncate(NaiveDateTime.utc_now(), typ)
 
   @spec china_now() :: {:ok, DateTime.t()}
-  def china_now(), do: now("Asia/Shanghai")
+  def china_now, do: now("Asia/Shanghai")
 
   # ############# date <==> datetime #############
 
   @spec date_to_datetime(Date.t(), binary) :: DateTime.t()
   def date_to_datetime(date, tz \\ "Asia/Shanghai") do
-    date
-    |> DateTime.new!(~T[00:00:01], tz)
+    DateTime.new!(date, ~T[00:00:01], tz)
   end
 
   @spec china_today() :: Date.t()
-  def china_today() do
-    now!("Asia/Shanghai")
+  def china_today do
+    "Asia/Shanghai"
+    |> now!()
     |> DateTime.to_date()
   end
 
@@ -65,8 +64,7 @@ defmodule ExKits.Utils.Time do
 
   # ############# string <==> datetime #############
   @spec datetime_to_str(DateTime.t(), String.t()) :: String.t()
-  def datetime_to_str(datetime, format \\ "%Y-%m-%d %H:%M:%S"),
-    do: Calendar.strftime(datetime, format)
+  def datetime_to_str(datetime, format \\ "%Y-%m-%d %H:%M:%S"), do: Calendar.strftime(datetime, format)
 
   @spec str_to_datetime(String.t(), String.t()) :: {:ok, DateTime.t()}
   def str_to_datetime(s, shift \\ "+08:00") do

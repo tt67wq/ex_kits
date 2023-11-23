@@ -137,13 +137,7 @@ defmodule ExKits.Utils.Buffer do
 
   @doc false
   def handle_put(
-        state = %__MODULE__{
-          buff: buff,
-          buff_size: buff_size,
-          capacity: capacity,
-          touch: touch,
-          gc_freq: gc_freq
-        },
+        %__MODULE__{buff: buff, buff_size: buff_size, capacity: capacity, touch: touch, gc_freq: gc_freq} = state,
         items
       ) do
     if Enum.count(items) + buff_size > capacity do
@@ -169,16 +163,10 @@ defmodule ExKits.Utils.Buffer do
   end
 
   @doc false
-  def handle_take(state = %__MODULE__{buff_size: 0}), do: {[], state}
+  def handle_take(%__MODULE__{buff_size: 0} = state), do: {[], state}
 
-  def handle_take(
-        state = %__MODULE__{
-          buff: buff,
-          buff_size: buff_size
-        }
-      ) do
-    {:ets.select(buff, [{{:"$1", :"$2"}, [{:<, :"$1", buff_size}], [:"$2"]}]),
-     %__MODULE__{state | buff_size: 0}}
+  def handle_take(%__MODULE__{buff: buff, buff_size: buff_size} = state) do
+    {:ets.select(buff, [{{:"$1", :"$2"}, [{:<, :"$1", buff_size}], [:"$2"]}]), %__MODULE__{state | buff_size: 0}}
   end
 
   @doc false
