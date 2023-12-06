@@ -52,4 +52,11 @@ defmodule LRUTest do
     assert LRU.get(:lru, :c) == 3
     assert LRU.get(:lru, :d) == 4
   end
+
+  test "select returns the first value that matches the condition" do
+    :ok = LRU.put(:lru, :a, 1)
+    :ok = LRU.put(:lru, :b, 2)
+    :ok = LRU.put(:lru, :c, 3)
+    assert LRU.select(:lru, fn value -> value > 1 end) == 2
+  end
 end

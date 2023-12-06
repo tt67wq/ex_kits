@@ -100,6 +100,46 @@ defmodule ExKits.Cache.LRU do
   end
 
   @doc """
+  Selects and returns the first value in the cache that matches the given condition.
+
+  ## Examples
+
+      iex> LRU.select(:my_cache, fn value -> value > 10 end)
+      15
+
+  ### Parameters
+
+  - `name` - The name of the cache.
+  - `match_fun` - A function that takes a value and returns a boolean indicating whether it matches the condition.
+  - `timeout` (optional) - The timeout value in milliseconds for the operation. Defaults to 5000.
+
+  ### Returns
+
+  The first value in the cache that matches the given condition, or `nil` if no match is found.
+
+  """
+  @spec select(atom(), (any() -> boolean()), non_neg_integer()) :: any()
+  def select(name, match_fun, timeout \\ 5000) do
+    name
+    |> :ets.first()
+    |> select(name, match_fun, timeout)
+  end
+
+  defp select(:end_of_table, _, _, _), do: nil
+
+  defp select(key, name, match_fun, timeout) do
+    [{_, _, value}] = :ets.lookup(name, key)
+
+    if match_fun.(value) do
+      Agent.get(name, __MODULE__, :handle_touch, [key], timeout)
+      value
+    else
+      next_k = :ets.next(name, key)
+      select(next_k, name, match_fun, timeout)
+    end
+  end
+
+  @doc """
   Removes the entry stored under the given `key` from cache.
   """
   @spec delete(atom(), any(), non_neg_integer()) :: :ok
