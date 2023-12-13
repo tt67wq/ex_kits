@@ -2,7 +2,7 @@ defmodule ExKits.MixProject do
   @moduledoc false
   use Mix.Project
 
-  @name "lib_oss"
+  @name "ex_kits"
   @version "0.2.4"
   @repo_url "https://github.com/tt67wq/ex_kits"
   @description "Some useful kits for elixir development"
