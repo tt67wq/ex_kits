@@ -9,6 +9,11 @@ defmodule ExKits.Utils.Exception do
         }
   defexception [:message, :details]
 
+  @spec new(String.t() | nil, any()) :: t()
+  def new(message, details \\ nil) do
+    %__MODULE__{message: message, details: details}
+  end
+
   def message(%__MODULE__{} = exception) do
     pfx = "** (Exception) "
 
