@@ -13,7 +13,7 @@ defmodule ExKits.Cache.Storage do
 
   # types
 
-  @type t :: struct()
+  @type t :: atom()
   @type opts :: Keyword.t()
   @type k :: term()
   @type v :: term() | nil
@@ -21,10 +21,21 @@ defmodule ExKits.Cache.Storage do
           {:ttl, pos_integer() | :infinity}
         ]
 
-  @callback new(opts) :: t
-  @callback get(t, k) :: v
-  @callback put(t, k, v, put_opts()) :: any()
-  @callback del(t, k) :: any()
+  @callback get(k) :: v
+  @callback put(k, v, put_opts()) :: :ok
+  @callback del(k) :: any()
+
+  defmacro __using__(_) do
+    quote do
+      @behaviour ExKits.Cache.Storage
+
+      def get(k), do: raise("Not implemented")
+      def put(k, v, opts), do: raise("Not implemented")
+      def del(k), do: raise("Not implemented")
+
+      defoverridable(get: 1, put: 3, del: 1)
+    end
+  end
 
   @doc """
   get the value of a key from the cache storage
@@ -47,7 +58,7 @@ defmodule ExKits.Cache.Storage do
       iex> ExKits.Cache.Storage.put(storage, :key, "value", [])
       :ok
   """
-  @spec put(t, k, v, put_opts()) :: any()
+  @spec put(t, k, v, put_opts()) :: :ok
   def put(storage, k, v, opts), do: delegate(storage, :put, [k, v, opts])
 
   @doc """
@@ -62,7 +73,7 @@ defmodule ExKits.Cache.Storage do
   @spec del(t, k) :: any()
   def del(storage, k), do: delegate(storage, :del, [k])
 
-  defp delegate(%module{} = storage, func, args), do: apply(module, func, [storage | args])
+  defp delegate(impl, func, args), do: apply(impl, func, args)
 end
 
 defmodule ExKits.Storage.ETS do
@@ -70,99 +81,86 @@ defmodule ExKits.Storage.ETS do
   ExKits.Cache.Storage implementation by ETS
   """
 
-  @behaviour ExKits.Cache.Storage
-
+  use ExKits.Cache.Storage
   use GenServer
 
-  alias ExKits.Cache.Storage
+  @impl ExKits.Cache.Storage
+  def get(key), do: GenServer.call(__MODULE__, {:get, key})
 
-  require Logger
+  @impl ExKits.Cache.Storage
+  def put(key, value, opts), do: GenServer.cast(__MODULE__, {:put, key, value, opts})
 
-  @type t :: %__MODULE__{name: atom(), interval: pos_integer()}
-
-  @enforce_keys ~w{name interval}a
-
-  defstruct @enforce_keys
-
-  @doc """
-  create a new ets based storage.
-  2 options are supported:
-  - name: ets name, default to :ets_cache
-  - interval: interval to clean expired keys, default to 60_000 (1 minute)
-  """
-  @impl Storage
-  def new(opts \\ []) do
-    opts =
-      opts
-      |> Keyword.put_new(:name, :ets_cache)
-      |> Keyword.put_new(:interval, 60_000)
-
-    struct(__MODULE__, opts)
-  end
-
-  @impl Storage
-  def get(storage, key) do
-    case :ets.lookup(storage.name, key) do
-      [{^key, value, :infinity}] ->
-        value
-
-      [{^key, value, timeout}] when is_integer(timeout) ->
-        if timeout < :os.system_time(:millisecond) do
-          :ets.delete(storage.name, key)
-          nil
-        else
-          value
-        end
-
-      _ ->
-        nil
-    end
-  end
-
-  @impl Storage
-  def put(storage, key, value, ttl: :infinity), do: :ets.insert(storage.name, {key, value, :infinity})
-
-  def put(storage, key, value, ttl: ttl), do: :ets.insert(storage.name, {key, value, :os.system_time(:millisecond) + ttl})
-
-  def put(storage, key, value, []), do: put(storage, key, value, ttl: :infinity)
-
-  @impl Storage
-  def del(storage, key), do: :ets.delete(storage.name, key)
-
-  def child_spec(opts) do
-    ets_storage = Keyword.fetch!(opts, :ets_storage)
-    %{id: {__MODULE__, ets_storage.name}, start: {__MODULE__, :start_link, [opts]}}
-  end
+  @impl ExKits.Cache.Storage
+  def del(key), do: GenServer.cast(__MODULE__, {:del, key})
 
   def start_link(opts) do
-    {ets_storage, opts} = Keyword.pop(opts, :ets_storage)
-    GenServer.start_link(__MODULE__, ets_storage, opts)
+    GenServer.start_link(__MODULE__, opts, name: __MODULE__)
   end
 
   @impl true
-  def init(ets_storage) do
-    :ets.new(ets_storage.name, [:named_table, :public, :set])
-    Process.send_after(self(), :cleanup, ets_storage.interval)
-    {:ok, %{name: ets_storage.name, interval: ets_storage.interval}}
+  def init(opts) do
+    name = Keyword.get(opts, :name, :ets_cache)
+    interval = Keyword.get(opts, :interval, 60_000)
+    :ets.new(name, [:named_table, :public, :set])
+    Process.send_after(self(), :cleanup, interval)
+    {:ok, %{name: name, interval: interval}}
   end
 
   @impl true
   def handle_info(:cleanup, %{name: name, interval: interval} = state) do
     now = :os.system_time(:millisecond)
 
-    deleted =
-      :ets.select_delete(
-        name,
-        [
-          {{:"$1", :"$2", :infinity}, [], [false]},
-          {{:"$1", :"$2", :"$3"}, [{:<, :"$3", now}], [true]},
-          {:_, [], [false]}
-        ]
-      )
-
-    Logger.debug("cleanup #{deleted} expired items from #{name}")
+    :ets.select_delete(
+      name,
+      [
+        {{:"$1", :"$2", :infinity}, [], [false]},
+        {{:"$1", :"$2", :"$3"}, [{:<, :"$3", now}], [true]},
+        {:_, [], [false]}
+      ]
+    )
 
     Process.send_after(self(), :cleanup, interval)
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_call({:get, key}, _from, %{name: name} = state) do
+    value =
+      case :ets.lookup(name, key) do
+        [{^key, value, :infinity}] ->
+          value
+
+        [{^key, value, timeout}] when is_integer(timeout) ->
+          if timeout < :os.system_time(:millisecond) do
+            :ets.delete(name, key)
+            nil
+          else
+            value
+          end
+
+        _ ->
+          nil
+      end
+
+    {:reply, value, state}
+  end
+
+  @impl true
+  def handle_cast({:put, key, value, opts}, %{name: name} = state) do
+    case Keyword.get(opts, :ttl, :infinity) do
+      :infinity ->
+        :ets.insert(name, {key, value, :infinity})
+
+      ttl when is_integer(ttl) ->
+        :ets.insert(name, {key, value, System.system_time(:millisecond) + ttl})
+    end
+
+    {:noreply, state}
+  end
+
+  @impl true
+  def handle_cast({:del, key}, %{name: name} = state) do
+    :ets.delete(name, key)
     {:noreply, state}
   end
 end
