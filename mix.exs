@@ -33,7 +33,7 @@ defmodule ExKits.MixProject do
     [
       {:tzdata, "~> 1.1"},
       {:jason, "~> 1.4"},
-      {:ex_doc, "~> 0.32", only: :dev, runtime: false},
+      {:ex_doc, "~> 0.34", only: :dev, runtime: false},
       {:styler, "~> 0.11", only: [:dev, :test], runtime: false},
       {:dialyxir, "~> 1.4", only: [:dev], runtime: false},
       {:credo, "~> 1.7", only: [:dev, :test], runtime: false}
