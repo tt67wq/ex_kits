@@ -10,7 +10,10 @@ defmodule ExKits.Macros.Constants do
   defmodule MyConst do
     import ExKits.Macros.Constants
 
+    @dict %{a: 1, b: 2}
+
     const :pi, 3.14159
+    const :dict, Macro.escape(@dict)
   end
 
   # Use a constant:
