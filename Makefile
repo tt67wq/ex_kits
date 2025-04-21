@@ -39,6 +39,9 @@ deps.get: ## 获取所有依赖
 deps.update: ## 更新指定依赖
 	@mix deps.update $(filter-out $@,$(MAKECMDGOALS))
 
+deps.update.all: ## 更新所有依赖
+	@mix deps.update --all
+
 deps.clean: ## 清理未使用的依赖
 	@mix deps.clean --unused
 
