@@ -1,4 +1,4 @@
-.PHONY: help setup build lint fmt test test.watch repl
+.PHONY: help setup build lint fmt test test.watch repl deps.get deps.update deps.update.all deps.clean deps.compile deps.tree
 
 .DEFAULT_GOAL := help
 
