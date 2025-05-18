@@ -1,4 +1,6 @@
-.PHONY: help setup build lint fmt test test.watch repl deps.get deps.update deps.update.all deps.clean deps.compile deps.tree
+
+
+.PHONY: help setup build lint fmt test test.watch repl deps.get deps.update deps.update.all deps.clean deps.compile deps.tree publish
 
 .DEFAULT_GOAL := help
 
@@ -50,3 +52,6 @@ deps.compile: ## 编译项目依赖
 
 deps.tree: ## 显示依赖树状结构
 	@mix deps.tree
+
+publish: ## 发布到 Hex
+	@mix hex.publish
